@@ -50,37 +50,51 @@ body {
   color: #111827;
 }
 
+.saved-chats-modal-card {
+  max-height: 84vh;
+}
+
+.saved-chats-subtitle {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
 .saved-chats-list {
-  padding: 10px;
+  padding: 12px;
   display: grid;
-  gap: 8px;
+  gap: 10px;
   overflow-y: auto;
+  max-height: min(70vh, 620px);
 }
 
 .saved-chat-item {
   border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 14px;
+  background: linear-gradient(135deg, #f8fafc, #f3f6ff);
+  border-radius: 16px;
   padding: 12px 14px;
   text-align: left;
   cursor: pointer;
+  display: grid;
+  gap: 6px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .saved-chat-item:hover {
   border-color: #93c5fd;
-  background: #eff6ff;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+  transform: translateY(-1px);
 }
 
 .saved-chat-title {
   font-weight: 700;
   color: #111827;
-  margin-bottom: 4px;
 }
 
 .saved-chat-preview {
   color: #4b5563;
   font-size: 0.92rem;
-  margin-bottom: 6px;
+  line-height: 1.45;
 }
 
 .saved-chat-meta {
@@ -89,9 +103,34 @@ body {
 }
 
 .empty-state {
-  padding: 20px;
+  padding: 24px 16px;
   text-align: center;
   color: #6b7280;
+  background: #f8fafc;
+  border-radius: 14px;
+}
+
+.credits-modal-card {
+  max-width: 420px;
+}
+
+.credits-modal-body {
+  padding: 24px 22px 26px;
+  text-align: center;
+  display: grid;
+  gap: 10px;
+}
+
+.credits-modal-body p {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.credits-timer {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2563eb;
 }
 
 .auth-card {
@@ -291,6 +330,16 @@ body {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.credits-badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.92rem;
 }
 
 .chat-status {

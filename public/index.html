@@ -56,12 +56,28 @@
   </div>
 
   <div id="savedChatsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="savedChatsTitle">
-    <div class="modal-card">
+    <div class="modal-card saved-chats-modal-card">
       <div class="modal-header">
-        <h3 id="savedChatsTitle">Saved chats</h3>
+        <div>
+          <h3 id="savedChatsTitle">Saved chats</h3>
+          <p class="saved-chats-subtitle">Pick a conversation to continue</p>
+        </div>
         <button id="closeSavedChatsButton" class="icon-btn" type="button" aria-label="Close saved chats">✕</button>
       </div>
       <div id="savedChatsList" class="saved-chats-list"></div>
+    </div>
+  </div>
+
+  <div id="creditsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="creditsModalTitle">
+    <div class="modal-card credits-modal-card">
+      <div class="modal-header">
+        <h3 id="creditsModalTitle">Credits update</h3>
+        <button id="closeCreditsModalButton" class="icon-btn" type="button" aria-label="Close credits popup">✕</button>
+      </div>
+      <div class="credits-modal-body">
+        <p id="creditsModalMessage">Coming Soon</p>
+        <div id="creditsTimer" class="credits-timer"></div>
+      </div>
     </div>
   </div>
 
@@ -82,9 +98,11 @@
       <div class="chat-header">
         <div>
           <h1>Ask BizBuddy</h1>
-          <p>Welcome, <span id="welcomeName">there</span>.</p>
+          <p>Hi, <span id="welcomeName">there</span>.</p>
         </div>
         <div class="chat-actions">
+          <div id="creditsBadge" class="credits-badge">Credits: 15</div>
+          <button id="buyCreditsButton" class="chip" type="button">Buy credits</button>
           <button id="saveChatButton" class="chip" type="button">Save chat</button>
           <button id="newChatButton" class="chip" type="button">New chat</button>
         </div>

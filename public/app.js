@@ -23,20 +23,152 @@ const logoutButton = document.getElementById("logoutButton");
 const savedChatsButton = document.getElementById("savedChatsButton");
 const saveChatButton = document.getElementById("saveChatButton");
 const newChatButton = document.getElementById("newChatButton");
+const buyCreditsButton = document.getElementById("buyCreditsButton");
+const creditsBadge = document.getElementById("creditsBadge");
 const chatStatus = document.getElementById("chatStatus");
 const savedChatsModal = document.getElementById("savedChatsModal");
 const savedChatsList = document.getElementById("savedChatsList");
 const closeSavedChatsButton = document.getElementById("closeSavedChatsButton");
+const creditsModal = document.getElementById("creditsModal");
+const creditsModalTitle = document.getElementById("creditsModalTitle");
+const creditsModalMessage = document.getElementById("creditsModalMessage");
+const creditsTimer = document.getElementById("creditsTimer");
+const closeCreditsModalButton = document.getElementById("closeCreditsModalButton");
 
 let authMode = "login";
 let currentUser = null;
 let currentConversation = [];
 let currentSessionId = null;
 let savedChatSessions = [];
+let creditsBalance = 15;
+let creditsRefillUntil = null;
+let creditsCountdownTimer = null;
+const CREDIT_COST_PER_CHAT = 5;
+const STARTING_CREDITS = 15;
+const REFILL_MS = 60 * 60 * 1000;
 
 function setChatStatus(message) {
   if (!chatStatus) return;
   chatStatus.textContent = message || "";
+}
+
+function updateCreditsUI() {
+  if (creditsBadge) {
+    creditsBadge.textContent = `Credits: ${creditsBalance}`;
+  }
+}
+
+function getCreditsStorageKey(userEmail) {
+  return userEmail ? `bizbuddyCredits:${userEmail.toLowerCase()}` : "bizbuddyCredits";
+}
+
+function formatTimeLeft(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+function saveCreditsState() {
+  if (!currentUser?.email) return;
+  const payload = {
+    balance: creditsBalance,
+    refillUntil: creditsRefillUntil
+  };
+  localStorage.setItem(getCreditsStorageKey(currentUser.email), JSON.stringify(payload));
+}
+
+function closeCreditsModal() {
+  if (!creditsModal) return;
+  creditsModal.classList.add("hidden");
+}
+
+function showCreditsModal(message, showTimer = false) {
+  if (!creditsModal || !creditsModalTitle || !creditsModalMessage) return;
+  creditsModalTitle.textContent = showTimer ? "Credits refill" : "Credits update";
+  creditsModalMessage.textContent = message;
+  if (creditsTimer) {
+    creditsTimer.textContent = showTimer ? "" : "";
+  }
+  creditsModal.classList.remove("hidden");
+}
+
+function startCreditsRefillTimer() {
+  if (creditsCountdownTimer) {
+    clearInterval(creditsCountdownTimer);
+    creditsCountdownTimer = null;
+  }
+
+  if (!creditsRefillUntil || creditsBalance > 0) {
+    return;
+  }
+
+  showCreditsModal("Your credits refill in 1 hour", true);
+
+  const tick = () => {
+    const remaining = creditsRefillUntil - Date.now();
+    if (creditsTimer) {
+      creditsTimer.textContent = remaining > 0 ? formatTimeLeft(remaining) : "Refilled";
+    }
+
+    if (remaining <= 0) {
+      creditsBalance = STARTING_CREDITS;
+      creditsRefillUntil = null;
+      saveCreditsState();
+      updateCreditsUI();
+      if (creditsCountdownTimer) {
+        clearInterval(creditsCountdownTimer);
+        creditsCountdownTimer = null;
+      }
+      closeCreditsModal();
+      setChatStatus("Your credits have been refilled.");
+    }
+  };
+
+  tick();
+  creditsCountdownTimer = setInterval(tick, 1000);
+}
+
+function loadCreditsBalance() {
+  if (!currentUser?.email) {
+    creditsBalance = STARTING_CREDITS;
+    creditsRefillUntil = null;
+    updateCreditsUI();
+    return;
+  }
+
+  const storedCredits = localStorage.getItem(getCreditsStorageKey(currentUser.email));
+
+  if (!storedCredits) {
+    creditsBalance = STARTING_CREDITS;
+    creditsRefillUntil = null;
+  } else {
+    try {
+      const parsed = JSON.parse(storedCredits);
+      if (typeof parsed === "number") {
+        creditsBalance = Number(parsed) || STARTING_CREDITS;
+        creditsRefillUntil = null;
+      } else {
+        creditsBalance = Number(parsed?.balance) || STARTING_CREDITS;
+        creditsRefillUntil = parsed?.refillUntil || null;
+      }
+    } catch {
+      creditsBalance = STARTING_CREDITS;
+      creditsRefillUntil = null;
+    }
+  }
+
+  if (creditsBalance <= 0 && creditsRefillUntil && creditsRefillUntil <= Date.now()) {
+    creditsBalance = STARTING_CREDITS;
+    creditsRefillUntil = null;
+  }
+
+  saveCreditsState();
+  updateCreditsUI();
+  if (creditsBalance <= 0) {
+    startCreditsRefillTimer();
+  }
 }
 
 function appendMessage(text, type = "bot") {
@@ -371,6 +503,7 @@ function showApp(user) {
   }
 
   localStorage.setItem("bizbuddyUser", JSON.stringify(currentUser));
+  loadCreditsBalance();
   loadConversation();
   setChatStatus("");
 }
@@ -515,6 +648,11 @@ function handleAuthSubmit(event) {
   authForm.reset();
 }
 
+function handleBuyCredits() {
+  showCreditsModal("Coming Soon");
+  setChatStatus("Credits purchases are coming soon.");
+}
+
 async function sendMessage() {
   if (!userInput || !sendButton || !chatMessages) return;
 
@@ -523,6 +661,25 @@ async function sendMessage() {
   if (!input) {
     setChatStatus("Please type a message first.");
     return;
+  }
+
+  if (creditsBalance < CREDIT_COST_PER_CHAT) {
+    creditsBalance = 0;
+    creditsRefillUntil = Date.now() + REFILL_MS;
+    saveCreditsState();
+    updateCreditsUI();
+    startCreditsRefillTimer();
+    setChatStatus("Your credits refill in 1 hour.");
+    return;
+  }
+
+  creditsBalance -= CREDIT_COST_PER_CHAT;
+  saveCreditsState();
+  updateCreditsUI();
+  if (creditsBalance <= 0) {
+    creditsRefillUntil = Date.now() + REFILL_MS;
+    saveCreditsState();
+    startCreditsRefillTimer();
   }
 
   currentConversation.push({ role: "user", text: input });
@@ -599,6 +756,18 @@ if (closeSavedChatsButton) {
   closeSavedChatsButton.addEventListener("click", closeSavedChatsModal);
 }
 
+if (closeCreditsModalButton) {
+  closeCreditsModalButton.addEventListener("click", closeCreditsModal);
+}
+
+if (creditsModal) {
+  creditsModal.addEventListener("click", (event) => {
+    if (event.target === creditsModal) {
+      closeCreditsModal();
+    }
+  });
+}
+
 if (savedChatsModal) {
   savedChatsModal.addEventListener("click", (event) => {
     if (event.target === savedChatsModal) {
@@ -609,6 +778,10 @@ if (savedChatsModal) {
 
 if (newChatButton) {
   newChatButton.addEventListener("click", startNewChat);
+}
+
+if (buyCreditsButton) {
+  buyCreditsButton.addEventListener("click", handleBuyCredits);
 }
 
 if (logoutButton) {
