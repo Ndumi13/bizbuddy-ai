@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BizBuddy AI</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="brand">
+        <p class="eyebrow">Your business launchpad</p>
+        <h1 id="authTitle">Welcome back</h1>
+        <p id="authSubtitle">Sign in to continue to BizBuddy AI.</p>
+      </div>
+
+      <form id="authForm" class="auth-form">
+        <div id="nameGroup" class="field-group hidden">
+          <label for="nameInput">Full name</label>
+          <input id="nameInput" name="name" type="text" placeholder="Enter your full name" />
+        </div>
+
+        <div class="field-group">
+          <label for="emailInput">Email</label>
+          <input id="emailInput" name="email" type="email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="field-group">
+          <label for="passwordInput">Password</label>
+          <div class="password-row">
+            <input id="passwordInput" name="password" type="password" placeholder="Enter your password" required />
+            <button id="togglePasswordButton" class="icon-btn" type="button" aria-label="Show password">👁</button>
+          </div>
+        </div>
+
+        <div id="confirmGroup" class="field-group hidden">
+          <label for="confirmPasswordInput">Confirm password</label>
+          <input id="confirmPasswordInput" name="confirmPassword" type="password" placeholder="Re-enter your password" />
+        </div>
+
+        <div id="forgotPasswordRow" class="forgot-password-row">
+          <button id="forgotPasswordButton" class="text-btn" type="button">Forgot password?</button>
+        </div>
+
+        <p id="authMessage" class="auth-message" role="status"></p>
+        <button id="authSubmit" class="primary-btn" type="submit">Log in</button>
+      </form>
+
+      <div class="auth-switch">
+        <span id="authSwitchText">New here?</span>
+        <button id="toggleModeButton" class="text-btn" type="button">Create an account</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="savedChatsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="savedChatsTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="savedChatsTitle">Saved chats</h3>
+        <button id="closeSavedChatsButton" class="icon-btn" type="button" aria-label="Close saved chats">✕</button>
+      </div>
+      <div id="savedChatsList" class="saved-chats-list"></div>
+    </div>
+  </div>
+
+  <div id="appShell" class="app-shell hidden">
+    <aside class="sidebar">
+      <h2>BizBuddy AI</h2>
+      <p>Your AI business partner for ideas, planning, and growth.</p>
+      <div class="feature-list">
+        <div>💡 Business ideas</div>
+        <div>📈 Market planning</div>
+        <div>🧠 Strategy help</div>
+      </div>
+      <button id="savedChatsButton" class="sidebar-btn" type="button">Saved chats</button>
+      <button id="logoutButton" class="logout-btn" type="button">Log out</button>
+    </aside>
+
+    <main class="chat-panel">
+      <div class="chat-header">
+        <div>
+          <h1>Ask BizBuddy</h1>
+          <p>Welcome, <span id="welcomeName">there</span>.</p>
+        </div>
+        <div class="chat-actions">
+          <button id="saveChatButton" class="chip" type="button">Save chat</button>
+          <button id="newChatButton" class="chip" type="button">New chat</button>
+        </div>
+      </div>
+
+      <div id="chatStatus" class="chat-status" role="status"></div>
+
+      <div id="chatMessages" class="chat-messages">
+        <div class="message bot">
+          Welcome! Ask me about a business idea, pricing, startup strategy, or marketing.
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button class="chip" onclick="usePrompt('Help me validate a business idea')">Validate idea</button>
+        <button class="chip" onclick="usePrompt('Suggest a low-cost startup')">Low-cost startup</button>
+        <button class="chip" onclick="usePrompt('Help me write a business plan')">Business plan</button>
+      </div>
+
+      <div class="composer">
+        <input id="userInput" placeholder="Type your business question..." />
+        <button id="sendButton" onclick="sendMessage()">Send</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
